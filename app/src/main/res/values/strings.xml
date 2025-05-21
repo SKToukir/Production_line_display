@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Production Display</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="no_internet_connection_message">No Internet</string>
+    <string name="please_wait">অনুগ্রহ করে অপেক্ষা করুন..</string>
+    <string name="select_production_line">প্রোডাকশন লাইন সিলেক্ট করুন</string>
+    <string name="select_shift">শিফ্‌ট সিলেক্ট করুন</string>
+    <string name="select_prod_shift">উপরের অপশন থেকে প্রোডাকশন লাইন এবং শিফ্‌ট সিলেক্ট করুন </string>
+    <string name="no_data_found">দুঃখিত এই প্রোডাকশন লাইন এবং \n এই শিফ্‌ট এর জন্য কোনো তথ্য পাওয়া যায়নি </string>
+    <string name="check_internet">No Internet</string>
+
+    <string-array name="tv_production_line">
+        <item>Select Production Line</item>
+        <item>Production Line 1</item>
+        <item>Production Line 2</item>
+        <item>Production Line 3</item>
+        <item>Production Line 4</item>
+    </string-array>
+    <string-array name="shift">
+        <item>Select Shift</item>
+        <item>Shift 1</item>
+        <item>Shift 2</item>
+        <item>Shift 3</item>
+    </string-array>
+</resources>

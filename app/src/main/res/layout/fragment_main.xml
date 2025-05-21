@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/black"
+    android:keepScreenOn="true"
+    tools:context=".ui.MainFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/spinnerView"
+            android:layout_width="280dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginTop="20dp"
+            android:theme="@style/Theme.MaterialComponents.Light"
+            android:nextFocusDown="@id/spinnerView"
+            android:fontFamily="@font/sf_pro_display_bold"
+            android:background="@drawable/rectangle"
+            android:textColor="@color/white"
+            android:gravity="center"
+            android:spinnerMode="dropdown"
+            android:textSize="12.5sp" />
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/spinnerViewShift"
+            android:layout_toRightOf="@+id/spinnerView"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginTop="20dp"
+            android:fontFamily="@font/sf_pro_display_bold"
+            android:background="@drawable/rectangle"
+            android:foreground="?attr/selectableItemBackground"
+            android:hint="Shift 1"
+            android:spinnerMode="dropdown"
+            android:textColor="@color/white"
+            android:textColorHint="#fff"
+            android:gravity="center"
+            android:textSize="14.5sp" />
+
+        <LinearLayout
+            android:layout_margin="20dp"
+            android:layout_alignParentRight="true"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextClock
+                android:fontFamily="@font/sf_pro_display_medium"
+                android:textSize="40sp"
+                android:textColor="#fff"
+                android:id="@+id/txtClock"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:layout_gravity="right"
+                android:id="@+id/txt_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/sf_pro_display_medium"
+                android:textColor="#fff"
+                android:textSize="24sp" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <TextView
+        android:visibility="gone"
+        android:id="@+id/txtLoading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="@string/please_wait"
+        android:textColor="@color/date_time_text_color"
+        android:textSize="26sp" />
+
+</RelativeLayout>
