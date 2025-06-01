@@ -3,12 +3,14 @@ package com.walton.productionlinedisplay.ui
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.GridView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -42,7 +44,6 @@ class MainFragment : Fragment() {
     private var qc_passed: Int? = null
     private var wip_stock: Int? = null
     private var wbst_received: Int? = null
-    private var finalQcApproval: Int? = null
 
     private var productionLine: Int? = null
     private var shiftIndex: Int? = null
@@ -258,8 +259,9 @@ class MainFragment : Fragment() {
             binding.txtwbstRcv?.text = wbst_received.toString()
             binding.txtStock?.text = wip_stock.toString()
 
-            if (it.data?.barcode != null && it.data.barcode.size!! > 0) {
-                binding.barGridView?.adapter = it.data?.barcode?.let { it1 -> ListAdapter(it1) }
+            if (it.data?.barcode != null && it.data.barcode.isNotEmpty()) {
+                binding.barGridView?.adapter = it.data.barcode.let { it1 -> ListAdapter(it1) }
+                binding.barGridView?.let { it1 -> autoScrollGridViewLoop(it1) }
                 binding.txtNoBarcode?.visibility = View.INVISIBLE
             } else {
                 binding.txtNoBarcode?.visibility = View.VISIBLE
@@ -354,6 +356,27 @@ class MainFragment : Fragment() {
         if (binding.imgNoInternet?.isVisible == true) {
             binding.imgNoInternet!!.visibility = View.INVISIBLE
         }
+    }
+
+    private fun autoScrollGridViewLoop(gridView: GridView) {
+        val handler = Handler(Looper.getMainLooper())
+        val step = 1
+        val delay = 10L
+
+        val runnable = object : Runnable {
+            override fun run() {
+                gridView.smoothScrollBy(step, 0)
+
+                // If we reach bottom, go back to top
+                if (!gridView.canScrollVertically(1)) {
+                    gridView.setSelection(0)
+                }
+
+                handler.postDelayed(this, delay)
+            }
+        }
+
+        handler.post(runnable)
     }
 
     override fun onDestroyView() {
