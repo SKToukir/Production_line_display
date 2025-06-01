@@ -24,6 +24,7 @@ import com.walton.productionlinedisplay.viewmodel.ApiResponseViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {
@@ -41,18 +42,26 @@ class MainFragment : Fragment() {
     private var qc_passed: Int? = null
     private var wip_stock: Int? = null
     private var wbst_received: Int? = null
+    private var finalQcApproval: Int? = null
 
     private var productionLine: Int? = null
     private var shiftIndex: Int? = null
     private var paramMap: HashMap<String, String> = HashMap()
+    private var finalQcApprovalParamMap: HashMap<String, String> = HashMap()
     private val apiResponseViewModel: ApiResponseViewModel by viewModels()
 
     private fun getParams(): HashMap<String, String> {
         paramMap["prod_line"] = "tv_prodline_${productionLine.toString()}"
         paramMap["shift"] = "shift${shiftIndex.toString()}"
-        paramMap["date"] = getCurrentDate(false)
-        Log.d(TAG, "getParams: ${getCurrentDate(false)}")
+        paramMap["date"] = apiResponseViewModel.getCurrentDate(false)
+        Log.d(TAG, "getParams: ${apiResponseViewModel.getCurrentDate(false)}")
         return paramMap
+    }
+
+    private fun getFinalQcApprovalParams(): HashMap<String, String>{
+        finalQcApprovalParamMap["report_id"] = "427"
+        finalQcApprovalParamMap["token"] = "TV-TOKEN-953274"
+        return finalQcApprovalParamMap
     }
 
     override fun onCreateView(
@@ -60,7 +69,7 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
-        binding.txtDate.text = getCurrentDate(true)
+        binding.txtDate.text = apiResponseViewModel.getCurrentDate(true)
         // Inflate the layout for this fragment
         return binding.root
     }
@@ -154,7 +163,6 @@ class MainFragment : Fragment() {
     }
 
     private fun bindObserver() {
-
         /**
          * Internet connection observer
          * */
@@ -182,6 +190,22 @@ class MainFragment : Fragment() {
         /**
          * Api response observer
          * **/
+        apiResponseViewModel.apiResponseFinalQcApproval.observe(viewLifecycleOwner) {
+            when (it) {
+                is NetworkResult.Error -> {
+                    Log.d(TAG, "bindObserver: ${it.message}")
+
+                }
+                is NetworkResult.Loading -> {
+
+                }
+                is NetworkResult.Success -> {
+                    if (it.data!!.data.barcode_count != null){
+                        binding.txtFinalQcApproval!!.text = it.data.data.barcode_count
+                    }
+                }
+            }
+        }
         apiResponseViewModel.apiResponseLiveData.observe(viewLifecycleOwner) {
             when (it) {
                 is NetworkResult.Error -> {
@@ -234,7 +258,7 @@ class MainFragment : Fragment() {
             binding.txtwbstRcv?.text = wbst_received.toString()
             binding.txtStock?.text = wip_stock.toString()
 
-            if (it.data?.barcode?.size!! > 0) {
+            if (it.data?.barcode != null && it.data.barcode.size!! > 0) {
                 binding.barGridView?.adapter = it.data?.barcode?.let { it1 -> ListAdapter(it1) }
                 binding.txtNoBarcode?.visibility = View.INVISIBLE
             } else {
@@ -300,6 +324,7 @@ class MainFragment : Fragment() {
                 if (isInternetAvailable) {
                     Log.d(TAG, "run: No Data found $noDataFound")
                     apiResponseViewModel.getResponse(getParams())
+                    apiResponseViewModel.getFinalQcApproval(getFinalQcApprovalParams())
                     if (!noDataFound) {
 
                     }
@@ -337,18 +362,5 @@ class MainFragment : Fragment() {
         handlerData.removeCallbacksAndMessages(null)
         handler.removeCallbacksAndMessages(null)
         isFirstTime = true
-    }
-
-    @SuppressLint("SimpleDateFormat")
-    fun getCurrentDate(isDisplay: Boolean): String {
-        val formatter = SimpleDateFormat(
-            if (isDisplay) {
-                "dd-MM-yyyy"
-            } else {
-                "yyyy-MM-dd"
-            }
-        )
-        val date = Date()
-        return formatter.format(date)
     }
 }
