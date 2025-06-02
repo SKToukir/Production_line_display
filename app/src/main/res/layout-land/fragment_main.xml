@@ -130,7 +130,7 @@
                 <TextView
                     android:id="@+id/txtqcPass"
                     style="@style/body_text_value"
-                    android:text=" 610" />
+                    android:text="0" />
 
 
             </LinearLayout>
@@ -150,7 +150,7 @@
                 <TextView
                     android:id="@+id/txtwbstRcv"
                     style="@style/body_text_value"
-                    android:text=" 609" />
+                    android:text="0" />
 
 
             </LinearLayout>
@@ -170,7 +170,7 @@
                 <TextView
                     android:id="@+id/txtStock"
                     style="@style/body_text_value"
-                    android:text=" 1" />
+                    android:text="0" />
 
 
             </LinearLayout>
@@ -216,7 +216,7 @@
                     <TextView
                         android:id="@+id/txtFinalQcApproval"
                         style="@style/body_text_value_final_approval"
-                        android:text="610" />
+                        android:text="0" />
 
                 </LinearLayout>
 

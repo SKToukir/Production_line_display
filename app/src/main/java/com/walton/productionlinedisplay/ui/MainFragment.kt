@@ -201,7 +201,7 @@ class MainFragment : Fragment() {
 
                 }
                 is NetworkResult.Success -> {
-                    if (it.data!!.data.barcode_count != null){
+                    if (it.data!!.data != null){
                         binding.txtFinalQcApproval!!.text = it.data.data.barcode_count
                     }
                 }
