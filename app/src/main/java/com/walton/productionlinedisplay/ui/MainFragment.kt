@@ -232,7 +232,6 @@ class MainFragment : Fragment() {
                         binding.txtLoading.text = resources.getText(R.string.no_data_found)
                         binding.txtLoading.visibility = View.VISIBLE
                         binding.lnBody?.visibility = View.INVISIBLE
-                        noDataFound = true
                         handlerData.removeCallbacksAndMessages(null)
                     } else {
                         noDataFound = false
