@@ -206,10 +206,9 @@ class MainFragment : Fragment() {
 
                 is NetworkResult.Success -> {
                     if (it.data!!.data != null) {
-                        binding.txtFinalQcApproval!!.text = it.data.data.barcode_count
-                        finalQCApprovalDataParseDone = true
                         finalQcApproval = it.data.data.barcode_count.toInt()
-                        checkWBSTReceivedData();
+                        binding.txtFinalQcApproval!!.text = finalQcApproval.toString()
+                        finalQCApprovalDataParseDone = true
                     }
                 }
             }
@@ -247,18 +246,10 @@ class MainFragment : Fragment() {
                     } else {
                         noDataFound = false
                         wipStockDataParseDone = true
-                        checkWBSTReceivedData()
                         setDataUI(it)
                     }
                 }
             }
-        }
-    }
-
-    private fun checkWBSTReceivedData() {
-        if (finalQCApprovalDataParseDone && wipStockDataParseDone) {
-            wbst_received = getWbistReceivedData(finalQcApproval, wip_stock)
-            binding.txtwbstRcv?.text = wbst_received.toString()
         }
     }
 
@@ -272,10 +263,10 @@ class MainFragment : Fragment() {
 
             qc_passed = it.data?.pass
             wip_stock = it.data?.not_received
-//            wbst_received = getWbistReceivedData(qc_passed, wip_stock)
+            wbst_received = getWbistReceivedData(finalQcApproval, wip_stock)
 
             binding.txtqcPass?.text = qc_passed.toString()
-//            binding.txtwbstRcv?.text = wbst_received.toString()
+            binding.txtwbstRcv?.text = wbst_received.toString()
             binding.txtStock?.text = wip_stock.toString()
 
             if (it.data?.barcode != null && it.data.barcode.isNotEmpty()) {
