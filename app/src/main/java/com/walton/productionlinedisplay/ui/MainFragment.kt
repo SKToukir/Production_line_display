@@ -1,6 +1,5 @@
 package com.walton.productionlinedisplay.ui
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -24,8 +23,6 @@ import com.walton.productionlinedisplay.utils.Constant.TAG
 import com.walton.productionlinedisplay.utils.NetworkResult
 import com.walton.productionlinedisplay.viewmodel.ApiResponseViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.collections.HashMap
 
 @AndroidEntryPoint
@@ -44,6 +41,7 @@ class MainFragment : Fragment() {
     private var qc_passed: Int? = null
     private var wip_stock: Int? = null
     private var wbst_received: Int? = null
+    private var finalQcApproval: Int? = null
 
     private var productionLine: Int? = null
     private var shiftIndex: Int? = null
@@ -59,7 +57,7 @@ class MainFragment : Fragment() {
         return paramMap
     }
 
-    private fun getFinalQcApprovalParams(): HashMap<String, String>{
+    private fun getFinalQcApprovalParams(): HashMap<String, String> {
         finalQcApprovalParamMap["report_id"] = "427"
         finalQcApprovalParamMap["token"] = "TV-TOKEN-953274"
         return finalQcApprovalParamMap
@@ -163,6 +161,8 @@ class MainFragment : Fragment() {
             }
     }
 
+    var finalQCApprovalDataParseDone: Boolean = false
+    var wipStockDataParseDone: Boolean = false
     private fun bindObserver() {
         /**
          * Internet connection observer
@@ -174,11 +174,13 @@ class MainFragment : Fragment() {
                     isInternetAvailable = true
                     isInternetAvailable(true)
                 }
+
                 is AlertDialogStatus.ConnectionLost -> {
                     Log.d(TAG, "bindObserver: Network lost")
                     isInternetAvailable(false)
                     isInternetAvailable = false
                 }
+
                 is AlertDialogStatus.ConnectionNotAvailable -> {
                     Log.d(TAG, "bindObserver: Not connected")
                     isInternetAvailable = false
@@ -195,14 +197,19 @@ class MainFragment : Fragment() {
             when (it) {
                 is NetworkResult.Error -> {
                     Log.d(TAG, "bindObserver: ${it.message}")
-
+                    finalQCApprovalDataParseDone = false
                 }
+
                 is NetworkResult.Loading -> {
-
+                    finalQCApprovalDataParseDone = false
                 }
+
                 is NetworkResult.Success -> {
-                    if (it.data!!.data != null){
+                    if (it.data!!.data != null) {
                         binding.txtFinalQcApproval!!.text = it.data.data.barcode_count
+                        finalQCApprovalDataParseDone = true
+                        finalQcApproval = it.data.data.barcode_count.toInt()
+                        checkWBSTReceivedData();
                     }
                 }
             }
@@ -213,18 +220,22 @@ class MainFragment : Fragment() {
                     binding.txtLoading.visibility = View.VISIBLE
                     binding.txtLoading.text = it.message
                     binding.lnBody?.visibility = View.INVISIBLE
+                    wipStockDataParseDone = false
                     Log.d(TAG, "bindObserver: ${it.message}")
                     handlerData.removeCallbacksAndMessages(null)
                 }
+
                 is NetworkResult.Loading -> {
                     Log.d(TAG, "bindObserver: $isFirstTime")
                     if (isFirstTime) {
                         isFirstTime = false
+                        wipStockDataParseDone = false
                         binding.txtLoading.visibility = View.VISIBLE
                         binding.txtLoading.text = resources.getText(R.string.please_wait)
                         binding.lnBody?.visibility = View.INVISIBLE
                     }
                 }
+
                 is NetworkResult.Success -> {
                     Log.d(TAG, "bindObserver: ${it.data}")
                     if (it.data?.status == "failed") {
@@ -235,10 +246,19 @@ class MainFragment : Fragment() {
                         handlerData.removeCallbacksAndMessages(null)
                     } else {
                         noDataFound = false
+                        wipStockDataParseDone = true
+                        checkWBSTReceivedData()
                         setDataUI(it)
                     }
                 }
             }
+        }
+    }
+
+    private fun checkWBSTReceivedData() {
+        if (finalQCApprovalDataParseDone && wipStockDataParseDone) {
+            wbst_received = getWbistReceivedData(finalQcApproval, wip_stock)
+            binding.txtwbstRcv?.text = wbst_received.toString()
         }
     }
 
@@ -252,10 +272,10 @@ class MainFragment : Fragment() {
 
             qc_passed = it.data?.pass
             wip_stock = it.data?.not_received
-            wbst_received = getWbistReceivedData(qc_passed, wip_stock)
+//            wbst_received = getWbistReceivedData(qc_passed, wip_stock)
 
             binding.txtqcPass?.text = qc_passed.toString()
-            binding.txtwbstRcv?.text = wbst_received.toString()
+//            binding.txtwbstRcv?.text = wbst_received.toString()
             binding.txtStock?.text = wip_stock.toString()
 
             if (it.data?.barcode != null && it.data.barcode.isNotEmpty()) {
@@ -269,7 +289,7 @@ class MainFragment : Fragment() {
 
     }
 
-    private fun getLastUpdatedTime(): CharSequence? {
+    private fun getLastUpdatedTime(): CharSequence {
         return " ${binding.txtClock.text}"
     }
 
@@ -359,16 +379,23 @@ class MainFragment : Fragment() {
 
     private fun autoScrollGridViewLoop(gridView: GridView) {
         val handler = Handler(Looper.getMainLooper())
-        val step = 1
-        val delay = 10L
+        val step = 2
+        val delay = 20L
 
         val runnable = object : Runnable {
             override fun run() {
+                // Try scrolling
                 gridView.smoothScrollBy(step, 0)
 
-                // If we reach bottom, go back to top
-                if (!gridView.canScrollVertically(1)) {
-                    gridView.setSelection(0)
+                // Check if we've reached the bottom
+                val lastVisible = gridView.lastVisiblePosition
+                val totalItems = gridView.count
+
+                // Delay reset to top until the last item is off-screen
+                if (lastVisible >= totalItems - 1 && !gridView.canScrollVertically(1)) {
+                    handler.postDelayed({
+                        gridView.setSelection(0)
+                    }, 500) // Wait for smooth experience
                 }
 
                 handler.postDelayed(this, delay)

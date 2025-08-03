@@ -9,24 +9,26 @@ import com.walton.productionlinedisplay.model.ResponseModel
 import com.walton.productionlinedisplay.repository.ApiResponseRepository
 import com.walton.productionlinedisplay.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
-class ApiResponseViewModel @Inject constructor(private val apiResponseRepo: ApiResponseRepository): ViewModel() {
+class ApiResponseViewModel @Inject constructor(private val apiResponseRepo: ApiResponseRepository) :
+    ViewModel() {
 
     val apiResponseLiveData: LiveData<NetworkResult<ResponseModel>> get() = apiResponseRepo.apiResponseLiveData
     val apiResponseFinalQcApproval: LiveData<NetworkResult<FinalQcApproval>> get() = apiResponseRepo.apiResponseFinalQcApproval
 
-    fun getResponse(params: HashMap<String, String>){
-        viewModelScope.launch{
+    fun getResponse(params: HashMap<String, String>) {
+        viewModelScope.launch {
             apiResponseRepo.getResponse(params)
         }
     }
 
-    fun getFinalQcApproval(params: HashMap<String, String>){
+    fun getFinalQcApproval(params: HashMap<String, String>) {
         viewModelScope.launch {
             apiResponseRepo.getFinalQcApprovalResponse(params)
         }
